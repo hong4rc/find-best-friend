@@ -13,6 +13,7 @@ const INPUT_QR = 'input';
 const SELECT_QR = 'select';
 const LOGIN_QR = '#ctl01';
 const TR_QR = '#MainContent_Grid1 tr:not(:first-child)';
+const NAME_HP_QR = '#MainContent_TBtenHP';
 
 const loginForm = (res, jar, query, data) => {
     const $ = cheerio.load(res.body);
@@ -112,11 +113,12 @@ browser.get(firstPage)
                 })
                 .then(res => {
                     let $ = cheerio.load(res.body);
+                    let name = $(NAME_HP_QR).val();
                     let trList = $(TR_QR);
                     trList.map((index, elem) => {
                         let student = new Student($, elem);
                         listFriend[student.id] = listFriend[student.id] || student;
-                        listFriend[student.id].count++;
+                        listFriend[student.id].class.push(name);
                     });
                 })
                 .catch(err => {
@@ -132,7 +134,7 @@ browser.get(firstPage)
                 }
             }
             arr = arr.sort((a, b) => {
-                return Number(a.count) - Number(b.count);
+                return a.class.length - b.class.length;
             });
             fs.writeFileSync('./data.json', JSON.stringify(arr, null, 2));
         })

@@ -1,7 +1,11 @@
 'use strict';
 module.exports = class Student {
     constructor($, elem) {
-        this.count = 0;
+        this.id = '';
+        this.name = '';
+        this.phone = '';
+        this.cl = '';
+        this.class = [];
         $(elem).children('td').map((index, el) => {
             switch (index) {
                 case 0:
