@@ -7,6 +7,7 @@ const cheerio = require('cheerio');
 
 const browser = require('./utils/browser');
 const Student = require('./Student');
+const info = require('./info');
 
 const REDIRECTION_CODE = 302;
 const INPUT_QR = 'input';
@@ -55,14 +56,14 @@ const firstPage = 'http://daotao.dut.udn.vn/sv/Default.aspx';
 const jar = request.jar();
 let listFriend = {};
 
-const info = {
-    ctl00$TextBox1: 'your_id',
-    ctl00$TextBox2: 'your_pass',
+const data = {
+    ctl00$TextBox1: info.id,
+    ctl00$TextBox2: info.pass
 };
 console.log('Sending pass and id');
 browser.get(firstPage)
     .then(browser.saveCookies(jar))
-    .then(res => loginForm(res, jar, LOGIN_QR, info))
+    .then(res => loginForm(res, jar, LOGIN_QR, data))
     .then(res => {
         if (res.statusCode !== REDIRECTION_CODE || res.headers.location !== '/sv/S_Greeting.aspx') {
             throw new Error('Oh, Wrong login');
