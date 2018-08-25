@@ -1,0 +1,13 @@
+# Node modules
+node_modules
+
+
+# Intellij
+/.idea
+
+# Yarn
+yarn.lock
+
+# Build
+data.json
+

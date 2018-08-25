@@ -1,0 +1,17 @@
+{
+  "name": "find-best-friend",
+  "description": "Find who learn with you",
+  "version": "0.0.1",
+  "scripts": {
+    "lint": "eslint **/* --fix"
+  },
+  "author": "Hongarc",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "request": "^2.88.0",
+    "url-join": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.4.0"
+  }
+}
