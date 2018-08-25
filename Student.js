@@ -1,4 +1,10 @@
 'use strict';
+
+const NAME_INDEX = 1;
+const ID_INDEX = 2;
+const PHONE_INDEX = 3;
+const CL_INDEX = 4;
+
 module.exports = class Student {
     constructor($, elem) {
         this.id = '';
@@ -8,18 +14,16 @@ module.exports = class Student {
         this.class = [];
         $(elem).children('td').map((index, el) => {
             switch (index) {
-                case 0:
-                    break;
-                case 1:
+                case NAME_INDEX:
                     this.name = $(el).text();
                     break;
-                case 2:
+                case ID_INDEX:
                     this.id = $(el).text();
                     break;
-                case 3:
+                case PHONE_INDEX:
                     this.phone = $(el).text();
                     break;
-                case 4:
+                case CL_INDEX:
                     this.cl = $(el).text();
                     break;
                 default:
