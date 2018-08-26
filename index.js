@@ -46,13 +46,28 @@ const loginForm = (res, jar, query, data) => {
     }
     let href = res.request.uri.href;
     href = href.substring(FIRST, href.lastIndexOf('/'));
-    console.log(href, form.attr('action'));
     href = urlJoin(href, form.attr('action'));
     return browser.post(href, jar, formData)
-        .then(browser.saveCookies(jar));
-
+        .then(browser.saveCookies(jar))
+        .then(res => {
+            if (res.statusCode === REDIRECTION_CODE) {
+                const uri = res.request.uri;
+                href = `${uri.protocol}//${uri.host}${res.headers.location}`;
+                return browser.get(href, jar)
+                    .then(browser.saveCookies(jar));
+            }
+            return res;
+        });
 };
 
+const checkRedirect = (res, pathname, msg) => {
+    if (res.request.uri.pathname !== pathname) {
+        throw new Error(`Oh, Wrong "${pathname}"`);
+    }
+
+    console.log(`"${msg}"`);
+    return res;
+};
 
 const firstPage = 'http://daotao.dut.udn.vn/sv/Default.aspx';
 const jar = request.jar();
@@ -66,34 +81,13 @@ console.log('Sending pass and id');
 browser.get(firstPage)
     .then(browser.saveCookies(jar))
     .then(res => loginForm(res, jar, LOGIN_QR, data))
-    .then(res => {
-        if (res.statusCode !== REDIRECTION_CODE || res.headers.location !== '/sv/S_Greeting.aspx') {
-            throw new Error('Oh, Wrong login');
-        }
-        console.log('Click "Tiep tuc"');
-        return browser.get('http://daotao.dut.udn.vn/sv/S_Greeting.aspx', jar)
-            .then(browser.saveCookies(jar));
-    })
+    .then(res => checkRedirect(res, '/sv/S_Greeting.aspx', 'Tiep tuc'))
     .then(res => loginForm(res, jar, LOGIN_QR))
-    .then(res => {
-        if (res.statusCode !== REDIRECTION_CODE || res.headers.location !== '/sv/S_CamKet.aspx') {
-            throw new Error('Oh, Wrong "Tiep tuc"');
-        }
-
-        console.log('Click "Cam ket"');
-        return browser.get('http://daotao.dut.udn.vn/sv/S_CamKet.aspx', jar)
-            .then(browser.saveCookies(jar));
-    })
+    .then(res => checkRedirect(res, '/sv/S_CamKet.aspx', 'Cam ket'))
     .then(res => loginForm(res, jar, LOGIN_QR, {ctl00$MainContent$CBcamket: 'on'}))
-    .then(res => {
-        if (res.statusCode !== REDIRECTION_CODE || res.headers.location !== '/sv/S_NhanThan.aspx') {
-            throw new Error('Oh, Wrong "Cam ket"');
-        }
-
-        console.log('Ok, login done');
-        return browser.get('http://daotao.dut.udn.vn/sv/S_LichHoc.aspx', jar)
-            .then(browser.saveCookies(jar));
-    })
+    .then(res => checkRedirect(res, '/sv/S_NhanThan.aspx', 'Ok, login done'))
+    .then(res => browser.get('http://daotao.dut.udn.vn/sv/S_LichHoc.aspx', jar))
+    .then(browser.saveCookies(jar))
     .then(res => {
         const $ = cheerio.load(res.body);
 
@@ -105,19 +99,12 @@ browser.get(firstPage)
             // }
             const href = $(elem).attr('href');
             const target = href.replace('javascript:__doPostBack(\'', '').replace('\',\'\')', '');
-            console.log(target);
             mPromise = mPromise.then(() => loginForm(res, jar, LOGIN_QR, {__EVENTTARGET: target}))
-                .then(res => {
-                    if (res.statusCode !== REDIRECTION_CODE || res.headers.location !== '/sv/S_DSachLop.aspx') {
-                        throw new Error('Oh, Choose class fail');
-                    }
-                    console.log('Getting student');
-                    return browser.get('http://daotao.dut.udn.vn/sv/S_DSachLop.aspx', jar)
-                        .then(browser.saveCookies(jar));
-                })
+                .then(res => checkRedirect(res, '/sv/S_DSachLop.aspx', 'Choose class'))
                 .then(res => {
                     const $ = cheerio.load(res.body);
                     const name = $(NAME_HP_QR).val();
+                    console.log(`${name}\n`);
                     const trList = $(TR_QR);
                     trList.map((index, elem) => {
                         const student = new Student($, elem);
