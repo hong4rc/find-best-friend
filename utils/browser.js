@@ -2,7 +2,7 @@
 const request = require('request').defaults({jar: true});
 const FAKE_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/600.3.18 (KHTML, like Gecko)'
     + ' Chrome/63.0.3239.84 Version/8.0.3 Safari/600.3.18';
-const getHeaders = (url, jar) => {
+const getHeaders = url => {
     url = new URL(url);
     return {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -20,7 +20,7 @@ const method = method => (url, jar, form, qs) => {
         url: url,
         method: method,
         jar: jar,
-        gzip: true
+        gzip: true,
     };
     if (method.toUpperCase() === 'GET') {
         option.qs = form;
@@ -45,7 +45,6 @@ const post = method('POST');
 const saveCookies = jar => res => {
     const cookies = res.headers['set-cookie'] || [];
     cookies.forEach(cookie => {
-        console.log('cookie', cookie);
         jar.setCookie(cookie, 'http://daotao.dut.udn.vn');
     });
     return res;
