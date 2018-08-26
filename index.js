@@ -6,6 +6,7 @@ const request = require('request').defaults({jar: true});
 const cheerio = require('cheerio');
 
 const browser = require('./utils/browser');
+const log = require('./utils/log');
 const Student = require('./Student');
 const info = require('./info');
 
@@ -65,7 +66,8 @@ const checkRedirect = (res, pathname, msg) => {
         throw new Error(`Oh, Wrong "${pathname}"`);
     }
 
-    console.log(`"${msg}"`);
+    log.newLine();
+    log.info(`"${msg}"`);
     return res;
 };
 
@@ -80,7 +82,7 @@ const data = {
     ctl00$TextBox1: info.id,
     ctl00$TextBox2: info.pass,
 };
-console.log('Sending pass and id');
+log.info('Sending pass and id');
 browser.get(firstPage)
     .then(browser.saveCookies(jar))
     .then(formRedirect(data, '/sv/S_Greeting.aspx', 'Tiep tuc'))
@@ -101,7 +103,7 @@ browser.get(firstPage)
                 .then(res => {
                     const $ = cheerio.load(res.body);
                     const name = $(NAME_HP_QR).val();
-                    console.log(`${name}\n`);
+                    log.info(name);
                     const trList = $(TR_QR);
                     trList.map((index, elem) => {
                         const student = new Student($, elem);
@@ -110,7 +112,7 @@ browser.get(firstPage)
                     });
                 })
                 .catch(err => {
-                    console.log(err);
+                    log.error(err);
                 });
         });
         mPromise.then(() => {
@@ -126,5 +128,5 @@ browser.get(firstPage)
         });
     })
     .catch(err => {
-        console.log(err);
+        log.error(err);
     });

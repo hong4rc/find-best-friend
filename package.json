@@ -9,7 +9,9 @@
   "author": "Hongarc",
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
+    "console-control-strings": "^1.1.0",
     "request": "^2.88.0",
+    "supports-color": "^5.5.0",
     "url-join": "^4.0.0"
   },
   "devDependencies": {
