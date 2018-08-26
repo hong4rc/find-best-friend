@@ -69,6 +69,9 @@ const checkRedirect = (res, pathname, msg) => {
     return res;
 };
 
+const formRedirect = (data, pathname, msg) => res => loginForm(res, jar, LOGIN_QR, data)
+    .then(res => checkRedirect(res, pathname, msg));
+
 const firstPage = 'http://daotao.dut.udn.vn/sv/Default.aspx';
 const jar = request.jar();
 const listFriend = {};
@@ -80,12 +83,9 @@ const data = {
 console.log('Sending pass and id');
 browser.get(firstPage)
     .then(browser.saveCookies(jar))
-    .then(res => loginForm(res, jar, LOGIN_QR, data))
-    .then(res => checkRedirect(res, '/sv/S_Greeting.aspx', 'Tiep tuc'))
-    .then(res => loginForm(res, jar, LOGIN_QR))
-    .then(res => checkRedirect(res, '/sv/S_CamKet.aspx', 'Cam ket'))
-    .then(res => loginForm(res, jar, LOGIN_QR, {ctl00$MainContent$CBcamket: 'on'}))
-    .then(res => checkRedirect(res, '/sv/S_NhanThan.aspx', 'Ok, login done'))
+    .then(formRedirect(data, '/sv/S_Greeting.aspx', 'Tiep tuc'))
+    .then(formRedirect(null, '/sv/S_CamKet.aspx', 'Cam ket'))
+    .then(formRedirect({ctl00$MainContent$CBcamket: 'on'}, '/sv/S_NhanThan.aspx', 'Ok, login done'))
     .then(() => browser.get('http://daotao.dut.udn.vn/sv/S_LichHoc.aspx', jar))
     .then(browser.saveCookies(jar))
     .then(res => {
@@ -94,9 +94,6 @@ browser.get(firstPage)
         let mPromise = Promise.resolve(res);
         $('a[id^="MainContent_Grid1_LBT1_"]').map((index, elem) => {
 
-            // if (index > 0) {
-            //     return;
-            // }
             const href = $(elem).attr('href');
             const target = href.replace('javascript:__doPostBack(\'', '').replace('\',\'\')', '');
             mPromise = mPromise.then(() => loginForm(res, jar, LOGIN_QR, {__EVENTTARGET: target}))
