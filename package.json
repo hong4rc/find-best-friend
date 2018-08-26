@@ -3,7 +3,8 @@
   "description": "Find who learn with you",
   "version": "0.0.1",
   "scripts": {
-    "lint": "eslint **/* --fix"
+    "lint": "eslint index.js Student.js utils/* --fix",
+    "start": "node index.js"
   },
   "author": "Hongarc",
   "dependencies": {
