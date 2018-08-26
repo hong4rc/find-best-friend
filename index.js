@@ -9,6 +9,8 @@ const browser = require('./utils/browser');
 const Student = require('./Student');
 const info = require('./info');
 
+const FIRST = 0;
+const MY_INDENT = 4;
 const REDIRECTION_CODE = 302;
 const INPUT_QR = 'input';
 const SELECT_QR = 'select';
@@ -43,7 +45,7 @@ const loginForm = (res, jar, query, data) => {
         }
     }
     let href = res.request.uri.href;
-    href = href.substring(0, href.lastIndexOf('/'));
+    href = href.substring(FIRST, href.lastIndexOf('/'));
     console.log(href, form.attr('action'));
     href = urlJoin(href, form.attr('action'));
     return browser.post(href, jar, formData)
@@ -54,11 +56,11 @@ const loginForm = (res, jar, query, data) => {
 
 const firstPage = 'http://daotao.dut.udn.vn/sv/Default.aspx';
 const jar = request.jar();
-let listFriend = {};
+const listFriend = {};
 
 const data = {
     ctl00$TextBox1: info.id,
-    ctl00$TextBox2: info.pass
+    ctl00$TextBox2: info.pass,
 };
 console.log('Sending pass and id');
 browser.get(firstPage)
@@ -97,13 +99,14 @@ browser.get(firstPage)
 
         let mPromise = Promise.resolve(res);
         $('a[id^="MainContent_Grid1_LBT1_"]').map((index, elem) => {
+
             // if (index > 0) {
             //     return;
             // }
             const href = $(elem).attr('href');
             const target = href.replace('javascript:__doPostBack(\'', '').replace('\',\'\')', '');
             console.log(target);
-            mPromise = mPromise.then(mRes => loginForm(res, jar, LOGIN_QR, {__EVENTTARGET: target}))
+            mPromise = mPromise.then(() => loginForm(res, jar, LOGIN_QR, {__EVENTTARGET: target}))
                 .then(res => {
                     if (res.statusCode !== REDIRECTION_CODE || res.headers.location !== '/sv/S_DSachLop.aspx') {
                         throw new Error('Oh, Choose class fail');
@@ -113,11 +116,11 @@ browser.get(firstPage)
                         .then(browser.saveCookies(jar));
                 })
                 .then(res => {
-                    let $ = cheerio.load(res.body);
-                    let name = $(NAME_HP_QR).val();
-                    let trList = $(TR_QR);
+                    const $ = cheerio.load(res.body);
+                    const name = $(NAME_HP_QR).val();
+                    const trList = $(TR_QR);
                     trList.map((index, elem) => {
-                        let student = new Student($, elem);
+                        const student = new Student($, elem);
                         listFriend[student.id] = listFriend[student.id] || student;
                         listFriend[student.id].class.push(name);
                     });
@@ -126,19 +129,17 @@ browser.get(firstPage)
                     console.log(err);
                 });
         });
-        mPromise.then(res => {
+        mPromise.then(() => {
             let arr = [];
-            for (let id in listFriend) {
+            for (const id in listFriend) {
                 if (listFriend.hasOwnProperty(id)) {
-                    let student = listFriend[id];
+                    const student = listFriend[id];
                     arr.push(student);
                 }
             }
-            arr = arr.sort((a, b) => {
-                return a.class.length - b.class.length;
-            });
-            fs.writeFileSync('./data.json', JSON.stringify(arr, null, 2));
-        })
+            arr = arr.sort((a, b) => a.class.length - b.class.length);
+            fs.writeFileSync('./data.json', JSON.stringify(arr, null, MY_INDENT));
+        });
     })
     .catch(err => {
         console.log(err);
