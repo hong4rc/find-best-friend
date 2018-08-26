@@ -86,7 +86,7 @@ browser.get(firstPage)
     .then(res => checkRedirect(res, '/sv/S_CamKet.aspx', 'Cam ket'))
     .then(res => loginForm(res, jar, LOGIN_QR, {ctl00$MainContent$CBcamket: 'on'}))
     .then(res => checkRedirect(res, '/sv/S_NhanThan.aspx', 'Ok, login done'))
-    .then(res => browser.get('http://daotao.dut.udn.vn/sv/S_LichHoc.aspx', jar))
+    .then(() => browser.get('http://daotao.dut.udn.vn/sv/S_LichHoc.aspx', jar))
     .then(browser.saveCookies(jar))
     .then(res => {
         const $ = cheerio.load(res.body);
