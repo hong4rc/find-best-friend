@@ -124,7 +124,7 @@ browser.get(firstPage)
                     arr.push(student);
                 }
             }
-            arr = arr.sort((a, b) => a.class.length - b.class.length);
+            arr = arr.sort((a, b) => b.class.length - a.class.length);
             fs.writeFileSync('./data.json', JSON.stringify(arr, null, MY_INDENT));
         });
     })
