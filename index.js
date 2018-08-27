@@ -48,7 +48,6 @@ const submitForm = (res, jar, query, data) => {
         }
     }
     let href = res.request.uri.href;
-    href = href.substring(FIRST, href.lastIndexOf('/'));
     href = urlJoin(href, form.attr('action'));
     const method = form.attr('method') || DEFAULT_METHOD;
     return browser[method](href, jar, formData)
