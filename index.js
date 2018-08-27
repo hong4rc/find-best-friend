@@ -21,25 +21,26 @@ const NAME_HP_QR = '#MainContent_TBtenHP';
 
 const loginForm = (res, jar, query, data) => {
     const $ = cheerio.load(res.body);
-    const form = $(query);
-    const input = form.find(INPUT_QR);
+    const btn = $(query);
+    const form = btn.closest(LOGIN_QR) || btn;
+    const input = form.find(INPUT_QR).not('[type="submit"]');
     const select = form.find(SELECT_QR);
     const formData = {};
 
-    input.map((index, elem) => {
+    const pushElem = elem => {
         const name = $(elem).attr('name');
         const val = $(elem).val();
-        if (name && val !== 'Tất cả' && val !== 'Thoát') {
+        if (name) {
             formData[name] = val;
         }
+    };
+    input.map((index, elem) => {
+        pushElem(elem);
     });
     select.map((index, elem) => {
-        const name = $(elem).attr('name');
-        const val = $(elem).val();
-        if (name && val !== 'Tất cả') {
-            formData[name] = val;
-        }
+        pushElem(elem);
     });
+    pushElem(btn);
     for (const name in data) {
         if (data.hasOwnProperty(name)) {
             formData[name] = data[name];
@@ -71,7 +72,7 @@ const checkRedirect = (res, pathname, msg) => {
     return res;
 };
 
-const formRedirect = (data, pathname, msg) => res => loginForm(res, jar, LOGIN_QR, data)
+const formRedirect = (btn, data, pathname, msg) => res => loginForm(res, jar, btn, data)
     .then(res => checkRedirect(res, pathname, msg));
 
 const firstPage = 'http://daotao.dut.udn.vn/sv/Default.aspx';
@@ -85,9 +86,9 @@ const data = {
 log.info('Sending pass and id');
 browser.get(firstPage)
     .then(browser.saveCookies(jar))
-    .then(formRedirect(data, '/sv/S_Greeting.aspx', 'Tiep tuc'))
-    .then(formRedirect(null, '/sv/S_CamKet.aspx', 'Cam ket'))
-    .then(formRedirect({ctl00$MainContent$CBcamket: 'on'}, '/sv/S_NhanThan.aspx', 'Ok, login done'))
+    .then(formRedirect('#BT_DNhap', data, '/sv/S_Greeting.aspx', 'Tiep tuc'))
+    .then(formRedirect('#MainContent_Button1', null, '/sv/S_CamKet.aspx', 'Cam ket'))
+    .then(formRedirect('#MainContent_BTcamket', {ctl00$MainContent$CBcamket: 'on'}, '/sv/S_NhanThan.aspx', 'Ok, login done'))
     .then(() => browser.get('http://daotao.dut.udn.vn/sv/S_LichHoc.aspx', jar))
     .then(browser.saveCookies(jar))
     .then(res => {
