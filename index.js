@@ -1,7 +1,7 @@
 'use strict';
 
 const fs = require('fs');
-const urlJoin = require('url-join');
+const urlJoin = require('./utils/url-join');
 const request = require('request').defaults({jar: true});
 const cheerio = require('cheerio');
 
