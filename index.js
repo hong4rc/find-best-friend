@@ -86,12 +86,18 @@ const data = {
     ctl00$TextBox2: info.pass,
 };
 const dataCamKet = {ctl00$MainContent$CBcamket: 'on'};
+const dataChangePass = {
+    ctl00$MainContent$TBmatkhau_C: info.pass,
+    ctl00$MainContent$TBmatkhau_M: info.pass,
+    ctl00$MainContent$TBmatkhau_MX: info.pass,
+};
 log.info('Sending pass and id');
 browser.get(firstPage)
     .then(browser.saveCookies(jar))
     .then(formRedirect('#BT_DNhap', data, '/sv/S_Greeting.aspx', 'Tiep tuc'))
     .then(formRedirect('#MainContent_Button1', null, '/sv/S_CamKet.aspx', 'Cam ket'))
     .then(formRedirect('#MainContent_BTcamket', dataCamKet, '/sv/S_NhanThan.aspx', 'Ok, login done'))
+    .then(formRedirect('#MainContent_BT_LuuMK', dataChangePass, '/sv/S_NhanThan.aspx', 'Change Password :)'))
     .then(() => browser.get('http://daotao.dut.udn.vn/sv/S_LichHoc.aspx', jar))
     .then(browser.saveCookies(jar))
     .then(res => {
